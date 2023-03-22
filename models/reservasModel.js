@@ -15,6 +15,11 @@ const reservaSchema = Schema({
         type: Number,
         require: [true, 'La fecha es obligatoria']
     },
+    restaurante:{
+        type: Schema.Types.ObjectId,
+        ref: 'Restaurante',
+        require: true
+    }
       
 }); 
 
