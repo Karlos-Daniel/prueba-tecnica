@@ -1,5 +1,5 @@
 const {Restaurante} = require('../models');
-
+const {isValidObjectId}=require('mongoose')
 const validarDireccionRestaurante = async(ciudad,direccion)=>{
 
     const existe = await Restaurante.findOne({ciudad,direccion});
@@ -19,8 +19,18 @@ const validarImagRestaurante = async(file,extensiones = ['jpg', 'png', 'jpeg', '
 }
 
 const validarRestaurante = async(id)=>{
-    const existe = await Restaurante.findById(id);
-    return !!existe
+
+    if(!isValidObjectId(id)){
+        return false
+    }
+    
+    const restaurante = await Restaurante.findById(id)
+    
+    if(!restaurante){
+        return false
+    }
+
+    return true
 }
 
 module.exports = {

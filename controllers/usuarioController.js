@@ -89,6 +89,7 @@ const usuariosPost = async(req = request, res = response)=>{
 try {
     
     const {_id}= req.params;
+    
     if(!isValidObjectId(_id)){
         return res.status(400).json({
             msg:`este id: ${_id} no es de mongo`
@@ -108,14 +109,12 @@ try {
   return res.json({
         msg: 'usuario borrado con exito'
    })
-   
+
 } catch (error) {
     console.log(error);
         res.status(500);
 }
 }
-
-
 
 module.exports = {
     usuariosPut,

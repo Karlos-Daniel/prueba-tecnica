@@ -12,7 +12,7 @@ const reservaSchema = Schema({
         enum:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     },
     fecha:{
-        type: Date,
+        type: Number,
         require: [true, 'La fecha es obligatoria']
     },
       

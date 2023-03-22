@@ -2,7 +2,7 @@ const {Schema, model} = require('mongoose');
 
 const reservacionSchema = Schema({
     
-    restarante:{
+    restaurante:{
         type: Schema.Types.ObjectId,
         ref: 'Restaurante',
         require: true

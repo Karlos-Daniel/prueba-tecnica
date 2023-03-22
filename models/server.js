@@ -4,6 +4,7 @@ const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const {dbConnection} = require('../database/config');
 const routesRestaurantes = require('../routes/restaurantes.routes')
+const routesReservas = require('../routes/reservas.routes')
 
 
 class server{
@@ -33,12 +34,14 @@ class server{
             useTempFiles : true,
             tempFileDir : '/tmp/'
         }));
+
     }
 
     routes(){
         
         this.app.use(routesRestaurantes);
-                
+        this.app.use(routesReservas);
+        
     }
 
     listen(){

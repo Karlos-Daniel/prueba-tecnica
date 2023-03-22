@@ -1,5 +1,5 @@
 const { response, request } = require("express");
-const {Restaurante,Reserva} = require('../models');
+const {Restaurante,Reserva,Reservacion} = require('../models');
 
 const {validarDireccionRestaurante,validarRestaurante,validarImagRestaurante} = require('../helpers/validarRestaurante');
 const { findByIdAndUpdate } = require("../models/restauranteModel");
@@ -7,60 +7,87 @@ const {isValidObjectId}=require('mongoose')
 const cloudinary = require('cloudinary').v2
 cloudinary.config(process.env.CLOUDINARY_URL)
 
-const restaurantePost = async(req=request,res=response)=>{
+const reservasPost = async(req=request,res=response)=>{
     try {
         const {
-            nombreRestaurante,
-            descripcion,
-            direccion,
-            ciudad,
+            nombreReserva,
+            mesa,
+            fecha,
+            idRestaurante
         } = req.body
 
-        if(!nombreRestaurante||!descripcion||!direccion||!ciudad){
+
+        
+        if(!validarRestaurante(idRestaurante)){
             return res.status(400).json({
-                msg:'ingrese todos los campos necesarios (nombreRestaurante,descripcion,direccion,ciudad'
+                msg:`no es valido ese id: ${idRestaurante}`
+            })
+        }       
+        
+        if(!nombreReserva||!mesa||!fecha){
+            return res.status(400).json({
+                msg:'ingrese todos los campos necesarios (nombreReserva,mesa,fecha'
             })
         }
 
-        if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
-            return res.status(400).json({ msg: 'No hay archivos en la peticion.' });          
-        }
 
-        const file = req.files.archivo;
+        const limitRestaurante = await Reservacion.find({restaurante:idRestaurante}).populate('reserva')
 
-        if(await validarDireccionRestaurante(ciudad,direccion)){
-            return res.status(401).json({
-                msg:`El restaurante con direccion: ${direccion} y en la ciudad: ${ciudad} ya existe`
-            });
-        }
-        const {extension} = await validarImagRestaurante(file)
-        if(extension){
-            return res.status(401).json({
-                msg:`la extension ${extension} no es valida como imagen`
-            });
-        }
+        let reservaOcupada = false;
+        let mesaOcupada =false; 
+        console.log(typeof(fecha));
+        const fechaa = new Date(fecha);
+
+        // obtener el día de la fecha
+        const diaReserva = fechaa.getDate();
+
+    
+        const mesReserva = new Date(fecha).getMonth();
+        const anoReserva = new Date(fecha).getFullYear();
+
         
-        const data ={
-            nombreRestaurante,
-            descripcion,
-            direccion,
-            ciudad,
+
+        limitRestaurante.forEach(e=>{
+            let dia = new Date(e.reserva.fecha).getDay();
+            let mes = new Date(e.reserva.fecha).getMonth();
+            let ano = new Date(e.reserva.fecha).getFullYear();
+            if(dia==diaReserva&&mes==mesReserva&&ano==anoReserva){
+                reservaOcupada=true;
+            }
+            
+        }) 
+        
+        if(reservaOcupada){
+            return res.status(400).json({
+                msg:'Ya hay reservacion para esa fecha exacta'
+            })
         }
-        const restaurante = new Restaurante(data);
 
-        await restaurante.save();
+            const data ={
+                nombreReserva,
+                mesa,
+                fecha,
+                idRestaurante
+            }
+            
+            const reserva = new Reserva(data);
+            
+            await reserva.save();
+            
+            const dataReservacion ={
+                restaurante:idRestaurante,
+                reserva:reserva._id
+            }
+            const reservacion = new Reservacion(dataReservacion)
+            
+            await reservacion.save()
 
-        const { tempFilePath } = req.files.archivo
-        const { secure_url } = await cloudinary.uploader.upload(tempFilePath)
-
-        restaurante.imgRestaurante = secure_url
-
-        await restaurante.save()
-
-        return res.status(201).json(restaurante)
-
-
-
+            
+           
+            
+            
+            return res.status(201).json(reserva)
+            
     } catch (error) {
         console.log(error);
         return res.status(500).json({
@@ -74,9 +101,16 @@ const restaurantePut = async(req=request,res=response)=>{
         
         const {_id} = req.params;
 
-        if(!validarRestaurante(_id)){
+        if(!isValidObjectId(_id)){
             return res.status(400).json({
-                msg:`no es valido ese id: ${_id}`
+                msg:`este id: ${_id} no es de mongo`
+            })
+        }
+        const restaurante = await Restaurante.findById(_id)
+        
+        if(!restaurante){
+            return res.status(400).json({
+                msg:`Ese id no pertence a ningun restaurante`
             })
         }      
 
@@ -148,11 +182,18 @@ const restauranteDelete = async(req=request,res=response)=>{
     try {
         const {_id} = req.params;
         
-        if(!validarRestaurante(_id)){
+        if(!isValidObjectId(_id)){
             return res.status(400).json({
-                msg:`no es valido ese id: ${_id}`
+                msg:`este id: ${_id} no es de mongo`
             })
-        }    
+        }
+        const restaurante = await Restaurante.findByIdAndDelete(_id)
+        
+        if(!restaurante){
+            return res.status(400).json({
+                msg:`Ese id no pertence a ningun restaurante`
+            })
+        }   
     
         await Restaurante.findByIdAndDelete(id);
     
@@ -177,11 +218,18 @@ try {
     
     const {_id} = req.params;
     
-    if(!validarRestaurante(_id)){
+    if(!isValidObjectId(_id)){
         return res.status(400).json({
-            msg:`no es valido ese id: ${_id}`
+            msg:`este id: ${_id} no es de mongo`
         })
-    }    
+    }
+    const existe = await Restaurante.findById(_id)
+    
+    if(!existe){
+        return res.status(400).json({
+            msg:`Ese id no pertence a ningun restaurante`
+        })
+    }   
 
     if(!validarRestaurante(id)){
         return res.status(401).json({
@@ -233,9 +281,5 @@ const restauranteGet = async(req=request,res=response)=>{
 
 
 module.exports = {
-    restaurantePost,
-    restaurantePut,
-    restauranteDelete,
-    restauranteById,
-    restauranteGet
+    reservasPost
 }
