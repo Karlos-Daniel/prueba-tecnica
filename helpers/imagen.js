@@ -1,0 +1,5 @@
+
+
+const archivo =(file)=>{
+    
+}

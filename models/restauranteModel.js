@@ -6,20 +6,21 @@ const restauranteSchema = Schema({
         required: [true, 'El nombre es obligatorio'],
         unique: true
     },
-    Descripcion:{
+    descripcion:{
         type: String,
-        require: true
+        require: [true, 'El descripcion es obligatoria']
     },
-    Direccion: {
+    direccion: {
         type: String,
-        require: true
+        require: [true, 'El direccion es obligatoria']
     },
-    Ciudad:{
+    ciudad:{
         type: String,
-        require: true
+        require: [true, 'El ciudad es obligatoria']
     },
-    imgProducto: {
+    imgRestaurante: {
         type: String,
+        require: [true, 'La imagen es obligatoria']
     },
      
 

@@ -3,6 +3,7 @@ require('dotenv').config();
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const {dbConnection} = require('../database/config');
+const routesRestaurantes = require('../routes/restaurantes.routes')
 
 
 class server{
@@ -21,7 +22,7 @@ class server{
     }
 
     async conectarDB(){
-        //await dbConnection();
+        await dbConnection();
     }
 
     middlewares(){
@@ -36,7 +37,7 @@ class server{
 
     routes(){
         
-        //this.app.use(routesCategoria);
+        this.app.use(routesRestaurantes);
                 
     }
 

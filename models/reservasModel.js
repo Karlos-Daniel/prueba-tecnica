@@ -1,23 +1,27 @@
 const {Schema, model} = require('mongoose');
 
 const reservaSchema = Schema({
+
     nombreReserva:{
         type: String,
         required: [true, 'El nombre es obligatorio'],
-        unique: true
+    },
+    mesa:{
+        type: Number,
+        require: [true, 'La mesa es obligatoria'],
+        enum:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     },
     fecha:{
         type: Date,
-        require: true
+        require: [true, 'La fecha es obligatoria']
     },
-    
-     
+      
+}); 
 
-   
-}); restauranteSchema.methods.toJSON = function(){
-    const { __v, _id,... restaurante }=this.toObject();
-    restaurante.uid = _id
-    return restaurante;
+reservaSchema.methods.toJSON = function(){
+    const { __v, _id,... reserva }=this.toObject();
+    reserva.uid = _id
+    return reserva;
 }
 
-module.exports = model( 'Restaurante',restauranteSchema);
+module.exports = model('Reserva',reservaSchema);
