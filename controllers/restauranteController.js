@@ -50,7 +50,7 @@ const restaurantePost = async(req=request,res=response)=>{
 
         await restaurante.save();
 
-        const { tempFilePath } = req.files.archivo
+        const { tempFilePath } = file
         const { secure_url } = await cloudinary.uploader.upload(tempFilePath)
 
         restaurante.imgRestaurante = secure_url
@@ -58,8 +58,6 @@ const restaurantePost = async(req=request,res=response)=>{
         await restaurante.save()
 
         return res.status(201).json(restaurante)
-
-
 
     } catch (error) {
         console.log(error);
@@ -111,13 +109,14 @@ const restaurantePut = async(req=request,res=response)=>{
             });
         }
 
+        const restaurante = await Restaurante.findById(_id)
+
         const nombreArr = restaurante.imgRestaurante.split('/');
         const nombre = nombreArr[nombreArr.length - 1];
         const [publicId]=nombre.split('.');
-        console.log(publicId);
         await cloudinary.uploader.destroy(publicId);
 
-        const { tempFilePath } = req.files.archivo
+        const { tempFilePath } = file
         const { secure_url } = await cloudinary.uploader.upload(tempFilePath)
         
 
@@ -152,9 +151,26 @@ const restauranteDelete = async(req=request,res=response)=>{
             return res.status(400).json({
                 msg:`no es valido ese id: ${_id}`
             })
-        }    
+        }
+        
+        const reservas = await Reserva.find({restaurante:_id})
+        
+        if(reservas.length>0){
+             return res.status(400).json({
+                msg:'Este restaurante tiene reservas, porfavor elimine las reservas para eliminar el restaurante'
+             })
+        }
+
+        const restaurante = await Restaurante.findById(_id)
+        
+
+        const nombreArr = restaurante.imgRestaurante.split('/');
+        const nombre = nombreArr[nombreArr.length - 1];
+        const [publicId]=nombre.split('.');
+        console.log(publicId);
+        await cloudinary.uploader.destroy(publicId);
     
-        await Restaurante.findByIdAndDelete(id);
+        await Restaurante.findByIdAndDelete(_id);
     
         return res.status(200).json({
             msg:`Restaurante borrado con exito`
@@ -183,15 +199,16 @@ try {
         })
     }    
 
-    if(!validarRestaurante(id)){
+    if(!validarRestaurante(_id)){
         return res.status(401).json({
-            msg:`El restaurante con id: ${id} no existe en la DB`
+            msg:`El restaurante con id: ${_id} no existe en la DB`
         })
     }
     
-    const restaurante = await Restaurante.findById(id)
+    const restaurante = await Restaurante.findById(_id)
     
     return res.status(200).json(restaurante);
+
 } catch (error) {
     console.log(error);
     return res.status(500).json(error)

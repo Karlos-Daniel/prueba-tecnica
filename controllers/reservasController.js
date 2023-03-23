@@ -4,7 +4,7 @@ const moment = require('moment')
 
 const { validarDireccionRestaurante, validarRestaurante, validarImagRestaurante } = require('../helpers/validarRestaurante');
 
-
+const {validarReserva} = require('../helpers/validarReservas')
 
 const { findByIdAndUpdate } = require("../models/restauranteModel");
 const { isValidObjectId } = require('mongoose')
@@ -19,35 +19,41 @@ const reservasPost = async (req = request, res = response) => {
             fecha,
             restaurante
         } = req.body
+
+        //Posible Middleware
         const mesasValidas = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
-        const validarFecha = new Date(fecha);
-    
-        if(!mesasValidas.includes(mesa)){
+        
+        //Posible Middleware
+        if (!nombreReserva || !mesa || !fecha) {
             return res.status(400).json({
-                msg:'no es una mesa valida'
+                msg: 'ingrese todos los campos necesarios (nombreReserva,mesa,fecha'
             })
         }
 
+        //Posible Middleware
+        const validarFecha = new Date(fecha);
         if(validarFecha=='Invalid Date'){
             return res.status(400).json({
                 msg: 'no es una fecha valida'
             })
         }
 
-        const dateMoment = new Date(fecha)
-        const fechaMoment = moment(dateMoment).format('MM/DD/YYYY');
-        
+        //Posible Middleware
         if (!validarRestaurante(restaurante)) {
             return res.status(400).json({
                 msg: `no es valido ese id: ${restaurante}`
             })
         }
 
-        if (!nombreReserva || !mesa || !fecha) {
+         //Posible Middleware
+        if(!mesasValidas.includes(mesa)){
             return res.status(400).json({
-                msg: 'ingrese todos los campos necesarios (nombreReserva,mesa,fecha'
+                msg:'no es una mesa valida'
             })
         }
+
+        const dateMoment = new Date(fecha)
+        const fechaMoment = moment(dateMoment).format('MM/DD/YYYY');    
 
         const reservasRestaurante = await Reserva.find({ restaurante,fecha:fechaMoment})
        
@@ -58,24 +64,20 @@ const reservasPost = async (req = request, res = response) => {
         }
 
         const mesasRestaurantesFecha = await Reserva.find({ restaurante,fecha:fechaMoment,mesa})
-        console.log(mesasRestaurantesFecha);
+
         if(mesasRestaurantesFecha.length>0){
             return res.status(400).json({
                 msg:'ya existe una reserva en esa mesa para esa fecha'
             })
         }
 
-
         const reservasFechas = await Reserva.find({fecha:fechaMoment})
-
         if(reservasFechas.length>=20){
             return res.status(400).json({
                 msg:'ya hay 20 mesas reservadas entre todos los restaurantes para esa fecha'
             })
         }
        
-    
-
         const data = {
             nombreReserva,
             mesa,
@@ -87,9 +89,9 @@ const reservasPost = async (req = request, res = response) => {
 
         await reserva.save()
 
-
-        const reservas = await Reserva.find({})
-        return res.status(201).json(reservas)
+        return res.status(201).json({
+            msg:'Reserva creada con exito'
+        })
 
     } catch (error) {
         console.log(error);
@@ -99,77 +101,93 @@ const reservasPost = async (req = request, res = response) => {
     }
 }
 
-const restaurantePut = async (req = request, res = response) => {
+const reservaPut = async (req = request, res = response) => {
     try {
 
         const { _id } = req.params;
 
-        if (!isValidObjectId(_id)) {
+        if(!validarReserva(_id)){
             return res.status(400).json({
-                msg: `este id: ${_id} no es de mongo`
+                msg:`no es valido ese id: ${_id}`
             })
-        }
-        const restaurante = await Restaurante.findById(_id)
-
-        if (!restaurante) {
-            return res.status(400).json({
-                msg: `Ese id no pertence a ningun restaurante`
-            })
-        }
+        }  
 
         const {
-            nombreRestaurante,
-            descripcion,
-            direccion,
-            ciudad,
+            nombreReserva,
+            mesa,
+            fecha,
+            restaurante
         } = req.body
 
-        if (!nombreRestaurante || !descripcion || !direccion || !ciudad) {
+        
+        
+        //Posible Middleware
+        if (!nombreReserva || !mesa || !fecha) {
             return res.status(400).json({
-                msg: 'ingrese todos los campos necesarios (nombreRestaurante,descripcion,direccion,ciudad'
+                msg: 'ingrese todos los campos necesarios (nombreReserva,mesa,fecha'
+            })
+        }
+        
+        //Posible Middleware
+        const validarFecha = new Date(fecha);
+        if(validarFecha=='Invalid Date'){
+            return res.status(400).json({
+                msg: 'no es una fecha valida'
+            })
+        }
+        
+        //Posible Middleware
+        if (!validarRestaurante(restaurante)) {
+            return res.status(400).json({
+                msg: `no es valido ese id: ${restaurante}`
+            })
+        }
+        
+        //Posible Middleware
+        const mesasValidas = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+        if(!mesasValidas.includes(mesa)){
+            return res.status(400).json({
+                msg:'no es una mesa valida'
             })
         }
 
-        if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
-            return res.status(400).json({ msg: 'No hay archivos en la peticion.' });
-        }
-        const file = req.files.archivo;
+        const dateMoment = new Date(fecha)
+        const fechaMoment = moment(dateMoment).format('MM/DD/YYYY');    
 
-        if (await validarDireccionRestaurante(ciudad, direccion)) {
-            return res.status(401).json({
-                msg: `El restaurante con direccion: ${direccion} y en la ciudad: ${ciudad} ya existe`
-            });
-        }
-
-        const { extension } = await validarImagRestaurante(file)
-        if (extension) {
-            return res.status(401).json({
-                msg: `la extension ${extension} no es valida como imagen`
-            });
+        const reservasRestaurante = await Reserva.find({ restaurante,fecha:fechaMoment})
+       
+        if(reservasRestaurante.length>=15){
+            return res.status(400).json({
+                msg:'Ya hay 15 mesas para ese restaurante'
+            })
         }
 
-        const nombreArr = restaurante.imgRestaurante.split('/');
-        const nombre = nombreArr[nombreArr.length - 1];
-        const [publicId] = nombre.split('.');
-        console.log(publicId);
-        await cloudinary.uploader.destroy(publicId);
+        const mesasRestaurantesFecha = await Reserva.find({ restaurante,fecha:fechaMoment,mesa})
 
-        const { tempFilePath } = req.files.archivo
-        const { secure_url } = await cloudinary.uploader.upload(tempFilePath)
+        if(mesasRestaurantesFecha.length>0){
+            return res.status(400).json({
+                msg:'ya existe una reserva en esa mesa para esa fecha'
+            })
+        }
 
-
+        const reservasFechas = await Reserva.find({fecha:fechaMoment})
+        if(reservasFechas.length>=20){
+            return res.status(400).json({
+                msg:'ya hay 20 mesas reservadas entre todos los restaurantes para esa fecha'
+            })
+        }
+       
         const data = {
-            nombreRestaurante,
-            descripcion,
-            direccion,
-            ciudad,
-            imgRestaurante: secure_url
+            nombreReserva,
+            mesa,
+           fecha:fechaMoment,
+            restaurante
         }
 
-        await Restaurante.findByIdAndUpdate(_id, data);
+       await Reserva.findByIdAndUpdate(_id,data)
 
         return res.status(201).json({
-            msg: 'Restaurante actualizado con exito'
+            msg:'Reserva creada con exito'
         })
 
     } catch (error) {
@@ -180,7 +198,7 @@ const restaurantePut = async (req = request, res = response) => {
     }
 }
 
-const restauranteDelete = async (req = request, res = response) => {
+const reservaDelete = async (req = request, res = response) => {
 
     try {
         const { _id } = req.params;
@@ -190,18 +208,17 @@ const restauranteDelete = async (req = request, res = response) => {
                 msg: `este id: ${_id} no es de mongo`
             })
         }
-        const restaurante = await Restaurante.findByIdAndDelete(_id)
 
-        if (!restaurante) {
+        if(!validarReserva(_id)){
             return res.status(400).json({
-                msg: `Ese id no pertence a ningun restaurante`
+                msg:`no es valido ese id: ${_id}`
             })
-        }
+        } 
 
-        await Restaurante.findByIdAndDelete(id);
+        await Reserva.findByIdAndDelete(_id);
 
         return res.status(200).json({
-            msg: `Restaurante borrado con exito`
+            msg: `Reserva borrada con exito`
         })
 
     } catch (error) {
@@ -214,7 +231,7 @@ const restauranteDelete = async (req = request, res = response) => {
 
 }
 
-const restauranteById = async (req = request, res = response) => {
+const reservaById = async (req = request, res = response) => {
 
 
     try {
@@ -226,23 +243,18 @@ const restauranteById = async (req = request, res = response) => {
                 msg: `este id: ${_id} no es de mongo`
             })
         }
-        const existe = await Restaurante.findById(_id)
 
-        if (!existe) {
+        if(!validarReserva(_id)){
             return res.status(400).json({
-                msg: `Ese id no pertence a ningun restaurante`
+                msg:`no es valido ese id: ${_id}`
             })
-        }
+        } 
 
-        if (!validarRestaurante(id)) {
-            return res.status(401).json({
-                msg: `El restaurante con id: ${id} no existe en la DB`
-            })
-        }
+        const reserva = await Reserva.findById(_id)
 
-        const restaurante = await Restaurante.findById(id)
+        return res.status(200).json(reserva);
 
-        return res.status(200).json(restaurante);
+
     } catch (error) {
         console.log(error);
         return res.status(500).json(error)
@@ -252,37 +264,28 @@ const restauranteById = async (req = request, res = response) => {
 
 }
 
-const restauranteGet = async (req = request, res = response) => {
+const reservaGet = async (req = request, res = response) => {
 
     try {
 
-        const restaurantes = await Restaurante.find({});
+        const reservas = await Reserva.find({});
 
-        data = restaurantes.sort((a, b) => {
-            if (a.nombreRestaurante
-                > b.nombreRestaurante) {
-                return 1;
-            }
-            if (a.nombreRestaurante < b.nombreRestaurante) {
-                return -1;
-            }
-            return 0;
-        })
-
-        return res.json({ data })
+        return res.json(reservas)
 
     } catch (error) {
+
         console.log(error);
         return res.status(500).json(error)
+
     }
-
-
-
-
 
 }
 
 
 module.exports = {
-    reservasPost
+    reservasPost,
+    reservaPut,
+    reservaDelete,
+    reservaById,
+    reservaGet
 }
