@@ -1,18 +1,21 @@
 const{ Router }= require('express');
 
 
-const {reservasPost} = require('../controllers/reservasController');
+const {reservasPost,
+    reservaPut,
+    reservaDelete,
+    reservaById,
+    reservaGet} = require('../controllers/reservasController');
 
 const router = Router();
 
-//router.get('/restaurantes',restauranteGet)
+router.get('/reservas',reservaGet)
 
-//router.get('/restaurante/:id',restauranteById)
+router.get('/reservas/:_id',reservaById)
 
 router.post('/reservas',reservasPost)
 
-//router.put('/restaurante/:_id',restaurantePut)
-
-//router.delete('/restaurante/:id',restauranteDelete)
+router.put('/reservas/:_id',reservaPut)
+router.delete('/reservas/:_id',reservaDelete)
 
 module.exports = router;

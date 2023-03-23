@@ -11,12 +11,12 @@ const router = Router();
 
 router.get('/restaurantes',restauranteGet)
 
-router.get('/restaurante/:id',restauranteById)
+router.get('/restaurante/:_id',restauranteById)
 
 router.post('/restaurante',restaurantePost)
 
 router.put('/restaurante/:_id',restaurantePut)
 
-router.delete('/restaurante/:id',restauranteDelete)
+router.delete('/restaurante/:_id',restauranteDelete)
 
 module.exports = router;
