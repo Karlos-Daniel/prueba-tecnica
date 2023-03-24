@@ -8,8 +8,9 @@ const error =[check('correo','El correo es obligatorio').not().isEmpty(),
 check('correo','El correo es obligatorio').isEmail(),
 check('password','La contraseña es obligatorio').not().isEmpty(),]
 
-router.post('/usuario',
-error
-,usuariosPost);
+router.post(
+    '/usuario',
+    error,
+    usuariosPost);
 
 module.exports = router;

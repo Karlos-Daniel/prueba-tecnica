@@ -7,9 +7,9 @@ const router = Router();
 router.post('/login'
 
 ,[
-    body('correo').not().isEmpty(),
-    body('correo').isEmail(),
-    body('password').not().isEmpty()
+    body('correo','esta vacio este campo').not().isEmpty(),
+    body('correo','no es un email valido').isEmail(),
+    body('password','esta vacio este campo').not().isEmpty()
 ],
 
 login);

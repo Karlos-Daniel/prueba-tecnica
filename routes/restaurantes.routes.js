@@ -9,6 +9,9 @@ const {restaurantePost,
 
 const router = Router();
 
+
+
+
 router.get('/restaurantes',restauranteGet)
 
 router.get('/restaurante/:_id',restauranteById)

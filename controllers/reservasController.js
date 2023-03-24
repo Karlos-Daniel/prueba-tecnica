@@ -1,5 +1,6 @@
 const { response, request } = require("express");
 const { Restaurante, Reserva } = require('../models');
+const {validationResult} = require('express-validator');
 const moment = require('moment')
 
 const { validarDireccionRestaurante, validarRestaurante, validarImagRestaurante } = require('../helpers/validarRestaurante');
@@ -20,32 +21,36 @@ const reservasPost = async (req = request, res = response) => {
             restaurante
         } = req.body
 
-        //Posible Middleware
-        const mesasValidas = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+        const errors = validationResult(req);
         
-        //Posible Middleware
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                errores: errors.array()
+            })
+        }
         if (!nombreReserva || !mesa || !fecha) {
             return res.status(400).json({
                 msg: 'ingrese todos los campos necesarios (nombreReserva,mesa,fecha'
             })
         }
-
-        //Posible Middleware
+        
+        
         const validarFecha = new Date(fecha);
         if(validarFecha=='Invalid Date'){
             return res.status(400).json({
                 msg: 'no es una fecha valida'
             })
         }
-
-        //Posible Middleware
+        
+        
         if (!validarRestaurante(restaurante)) {
             return res.status(400).json({
                 msg: `no es valido ese id: ${restaurante}`
             })
         }
-
-         //Posible Middleware
+    
+        
+        const mesasValidas = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
         if(!mesasValidas.includes(mesa)){
             return res.status(400).json({
                 msg:'no es una mesa valida'

@@ -167,7 +167,6 @@ const restauranteDelete = async(req=request,res=response)=>{
         const nombreArr = restaurante.imgRestaurante.split('/');
         const nombre = nombreArr[nombreArr.length - 1];
         const [publicId]=nombre.split('.');
-        console.log(publicId);
         await cloudinary.uploader.destroy(publicId);
     
         await Restaurante.findByIdAndDelete(_id);

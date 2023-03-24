@@ -12,6 +12,7 @@ const login = async(req= request, res= response)=>{
         const {correo,password} = req.body;
 
         const errors = validationResult(req);
+        
         if(!errors.isEmpty()){
             return res.status(400).json({
                 errores: errors.array()
@@ -26,7 +27,7 @@ const login = async(req= request, res= response)=>{
                 msg: 'Correo no se encuentra registrado'
             })
         }
-
+        
         //Verificar la contraseña
         const validPassword = bcryptjs.compareSync(password, usuario.password);
         if(!validPassword){
@@ -35,7 +36,7 @@ const login = async(req= request, res= response)=>{
             })
         }
 
-        const token = await generarJWT(correo);
+        const token = await generarJWT(usuario._id);
             res.json({
                 token
             })
