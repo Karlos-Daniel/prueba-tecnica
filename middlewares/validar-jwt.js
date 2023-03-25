@@ -15,7 +15,6 @@ const validarJWT = async(req, res=response, next)=>{
         }
 
         const tokenValidado = jwt.verify(token,process.env.SECRET_KEY);
-        console.log(tokenValidado);
         const usuarioAuth= await Usuario.findById(tokenValidado.uid);
 
         if(!usuarioAuth){

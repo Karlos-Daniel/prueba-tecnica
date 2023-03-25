@@ -28,6 +28,8 @@ const reservasPost = async (req = request, res = response) => {
                 errores: errors.array()
             })
         }
+
+        
         if (!nombreReserva || !mesa || !fecha) {
             return res.status(400).json({
                 msg: 'ingrese todos los campos necesarios (nombreReserva,mesa,fecha'

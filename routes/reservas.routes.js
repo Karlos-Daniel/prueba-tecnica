@@ -32,9 +32,9 @@ const validarTipos =  [
 const errores = camposVacios.concat(validarTipos)
 
 
-router.get('/reservas',reservaGet)
+router.get('/reservas',[validarJWT],reservaGet)
 
-router.get('/reserva/:_id',errores,reservaById)
+router.get('/reserva/:_id',[validarJWT],reservaById)
 
 router.post('/reservas', errores ,reservasPost)
 

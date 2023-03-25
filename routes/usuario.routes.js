@@ -1,4 +1,5 @@
 const{ Router }= require('express');
+const {validarJWT} = require('../middlewares/validar-jwt')
 const {usuariosPost,usuariosDelete,usuariosPut}=require('../controllers/usuarioController');
 const {check} = require('express-validator');
 
@@ -10,7 +11,12 @@ check('password','La contraseña es obligatorio').not().isEmpty(),]
 
 router.post(
     '/usuario',
-    error,
     usuariosPost);
+    
+router.put('/usuario/:_id',usuariosPut);
+
+router.delete('/usuario/:_id',usuariosPut);
+
+
 
 module.exports = router;

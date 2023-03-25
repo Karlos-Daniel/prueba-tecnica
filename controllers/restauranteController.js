@@ -1,6 +1,6 @@
 const { response, request } = require("express");
 const {Restaurante,Reserva} = require('../models');
-
+const {validationResult} = require('express-validator');
 const {validarDireccionRestaurante,validarRestaurante,validarImagRestaurante} = require('../helpers/validarRestaurante');
 const { findByIdAndUpdate } = require("../models/restauranteModel");
 const {isValidObjectId}=require('mongoose')
@@ -16,9 +16,11 @@ const restaurantePost = async(req=request,res=response)=>{
             ciudad,
         } = req.body
 
-        if(!nombreRestaurante||!descripcion||!direccion||!ciudad){
+        const errors = validationResult(req);
+        
+        if(!errors.isEmpty()){
             return res.status(400).json({
-                msg:'ingrese todos los campos necesarios (nombreRestaurante,descripcion,direccion,ciudad'
+                errores: errors.array()
             })
         }
 
@@ -72,6 +74,18 @@ const restaurantePut = async(req=request,res=response)=>{
         
         const {_id} = req.params;
 
+        const errors = validationResult(req);
+        
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                errores: errors.array()
+            })
+        }
+        
+        if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
+            return res.status(400).json({ msg: 'No hay archivos en la peticion.' });          
+        }
+        
         if(!validarRestaurante(_id)){
             return res.status(400).json({
                 msg:`no es valido ese id: ${_id}`
@@ -85,15 +99,6 @@ const restaurantePut = async(req=request,res=response)=>{
             ciudad,
         } = req.body
 
-        if(!nombreRestaurante||!descripcion||!direccion||!ciudad){
-            return res.status(400).json({
-                msg:'ingrese todos los campos necesarios (nombreRestaurante,descripcion,direccion,ciudad'
-            })
-        }
-
-        if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
-            return res.status(400).json({ msg: 'No hay archivos en la peticion.' });          
-        }
         const file = req.files.archivo;
 
         if(await validarDireccionRestaurante(ciudad,direccion)){
@@ -102,7 +107,8 @@ const restaurantePut = async(req=request,res=response)=>{
             });
         }
 
-        const {extension} = await validarImagRestaurante(file)
+        const {extension} = await validarImagRestaurante(file);
+
         if(extension){
             return res.status(401).json({
                 msg:`la extension ${extension} no es valida como imagen`
@@ -146,6 +152,14 @@ const restauranteDelete = async(req=request,res=response)=>{
 
     try {
         const {_id} = req.params;
+
+        const errors = validationResult(req);
+        
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                errores: errors.array()
+            })
+        }
         
         if(!validarRestaurante(_id)){
             return res.status(400).json({
@@ -191,6 +205,14 @@ const restauranteById = async(req=request,res=response)=>{
 try {
     
     const {_id} = req.params;
+
+    const errors = validationResult(req);
+        
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                errores: errors.array()
+            })
+        }
     
     if(!validarRestaurante(_id)){
         return res.status(400).json({
@@ -220,6 +242,14 @@ try {
 const restauranteGet = async(req=request,res=response)=>{
     
     try {
+
+        const errors = validationResult(req);
+        
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                errores: errors.array()
+            })
+        }
 
         const restaurantes = await Restaurante.find({});
         

@@ -11,7 +11,14 @@ const usuariosPost = async(req = request, res = response)=>{
             apellido1,
             correo,
             password} = req.body;
-
+            
+            const errors = validationResult(req);
+        
+            if(!errors.isEmpty()){
+                return res.status(400).json({
+                    errores: errors.array()
+                })
+            }
             
             const data ={
                 nombre1,
