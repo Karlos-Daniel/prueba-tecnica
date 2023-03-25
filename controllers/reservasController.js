@@ -29,7 +29,7 @@ const reservasPost = async (req = request, res = response) => {
             })
         }
 
-        
+
         if (!nombreReserva || !mesa || !fecha) {
             return res.status(400).json({
                 msg: 'ingrese todos los campos necesarios (nombreReserva,mesa,fecha'
@@ -113,6 +113,14 @@ const reservaPut = async (req = request, res = response) => {
 
         const { _id } = req.params;
 
+        const errors = validationResult(req);
+        
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                errores: errors.array()
+            })
+        }
+
         if(!validarReserva(_id)){
             return res.status(400).json({
                 msg:`no es valido ese id: ${_id}`
@@ -128,14 +136,8 @@ const reservaPut = async (req = request, res = response) => {
 
         
         
-        //Posible Middleware
-        if (!nombreReserva || !mesa || !fecha) {
-            return res.status(400).json({
-                msg: 'ingrese todos los campos necesarios (nombreReserva,mesa,fecha'
-            })
-        }
         
-        //Posible Middleware
+       
         const validarFecha = new Date(fecha);
         if(validarFecha=='Invalid Date'){
             return res.status(400).json({
@@ -143,8 +145,8 @@ const reservaPut = async (req = request, res = response) => {
             })
         }
         
-        //Posible Middleware
-        if (!validarRestaurante(restaurante)) {
+       
+        if (!await validarRestaurante(restaurante)) {
             return res.status(400).json({
                 msg: `no es valido ese id: ${restaurante}`
             })
@@ -210,11 +212,7 @@ const reservaDelete = async (req = request, res = response) => {
     try {
         const { _id } = req.params;
 
-        if (!isValidObjectId(_id)) {
-            return res.status(400).json({
-                msg: `este id: ${_id} no es de mongo`
-            })
-        }
+ 
 
         if(!validarReserva(_id)){
             return res.status(400).json({
@@ -244,14 +242,16 @@ const reservaById = async (req = request, res = response) => {
     try {
 
         const { _id } = req.params;
-
-        if (!isValidObjectId(_id)) {
+        
+        const errors = validationResult(req);
+        
+        if(!errors.isEmpty()){
             return res.status(400).json({
-                msg: `este id: ${_id} no es de mongo`
+                errores: errors.array()
             })
         }
 
-        if(!validarReserva(_id)){
+        if(!await validarReserva(_id)){
             return res.status(400).json({
                 msg:`no es valido ese id: ${_id}`
             })

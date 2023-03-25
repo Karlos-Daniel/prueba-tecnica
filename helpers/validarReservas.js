@@ -1,6 +1,6 @@
 
-const {Reserva} = require('../models/reservasModel')
-
+const {Reserva} = require('../models')
+const { isValidObjectId } = require('mongoose')
 const validarReserva = async(id)=>{
 
     if(!isValidObjectId(id)){

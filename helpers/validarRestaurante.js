@@ -15,7 +15,7 @@ const validarImagRestaurante = async(file,extensiones = ['jpg', 'png', 'jpeg', '
         if (!extensiones.includes(extension)) {
             return extension
         }
-        return 'valido'
+        return false
 }
 
 const validarRestaurante = async(id)=>{

@@ -35,10 +35,11 @@ const restaurantePost = async(req=request,res=response)=>{
                 msg:`El restaurante con direccion: ${direccion} y en la ciudad: ${ciudad} ya existe`
             });
         }
-        const {extension} = await validarImagRestaurante(file)
+        const extension = await validarImagRestaurante(file);
+        
         if(extension){
             return res.status(401).json({
-                msg:`la extension ${extension} no es valida como imagen`
+                msg:`la extension '${extension}' no es valida como imagen`
             });
         }
         
@@ -69,7 +70,7 @@ const restaurantePost = async(req=request,res=response)=>{
     }
 }
 
-const restaurantePut = async(req=request,res=response)=>{
+const restaurantePut = async(req=request,res=response)=>{ 
     try {
         
         const {_id} = req.params;
@@ -107,16 +108,16 @@ const restaurantePut = async(req=request,res=response)=>{
             });
         }
 
-        const {extension} = await validarImagRestaurante(file);
-
+        const extension = await validarImagRestaurante(file);
+       
         if(extension){
             return res.status(401).json({
-                msg:`la extension ${extension} no es valida como imagen`
+                msg:`la extension '${extension}' no es valida como imagen`
             });
         }
 
         const restaurante = await Restaurante.findById(_id)
-
+        console.log(restaurante);
         const nombreArr = restaurante.imgRestaurante.split('/');
         const nombre = nombreArr[nombreArr.length - 1];
         const [publicId]=nombre.split('.');
@@ -124,15 +125,17 @@ const restaurantePut = async(req=request,res=response)=>{
 
         const { tempFilePath } = file
         const { secure_url } = await cloudinary.uploader.upload(tempFilePath)
-        
+        const imgRestaurante = secure_url;
 
         const data ={
             nombreRestaurante,
             descripcion,
             direccion,
             ciudad,
-            imgRestaurante:secure_url
+            imgRestaurante
         } 
+
+        console.log(imgRestaurante);
 
         await Restaurante.findByIdAndUpdate(_id,data);
         
@@ -213,14 +216,8 @@ try {
                 errores: errors.array()
             })
         }
-    
-    if(!validarRestaurante(_id)){
-        return res.status(400).json({
-            msg:`no es valido ese id: ${_id}`
-        })
-    }    
-
-    if(!validarRestaurante(_id)){
+     
+    if(!await validarRestaurante(_id)){
         return res.status(401).json({
             msg:`El restaurante con id: ${_id} no existe en la DB`
         })
