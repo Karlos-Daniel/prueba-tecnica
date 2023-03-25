@@ -196,7 +196,7 @@ const reservaPut = async (req = request, res = response) => {
        await Reserva.findByIdAndUpdate(_id,data)
 
         return res.status(201).json({
-            msg:'Reserva creada con exito'
+            msg:'Reserva modificada con exito'
         })
 
     } catch (error) {

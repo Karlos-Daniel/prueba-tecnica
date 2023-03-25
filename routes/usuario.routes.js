@@ -6,14 +6,14 @@ const {check} = require('express-validator');
 const router = Router();
 
 const error =[check('correo','El correo es obligatorio').not().isEmpty(),
-check('correo','El correo es obligatorio').isEmail(),
+check('correo',`'El correo debe ser un email 'ejemplo@ejemplo.com' `).isEmail(),
 check('password','La contraseña es obligatorio').not().isEmpty(),]
 
 router.post(
-    '/usuario',
+    '/usuario',error,
     usuariosPost);
     
-router.put('/usuario/:_id',usuariosPut);
+router.put('/usuario/:_id',error,usuariosPut);
 
 router.delete('/usuario/:_id',usuariosPut);
 

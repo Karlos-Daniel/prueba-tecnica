@@ -1,6 +1,7 @@
 const{response,request}= require('express');
 const Usuario = require('../models/usuarioModel')
 const {isValidObjectId}=require('mongoose')
+const {validationResult} = require('express-validator');
 const brcryptjs = require('bcryptjs');
 
 
