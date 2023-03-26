@@ -15,9 +15,10 @@ const validarJWT = async(req, res=response, next)=>{
                 msg: "No hay token en la peticion"
             }); 
         }
+
+                
         
-        
-        const tokenValidado = jwt.verify(token,process.env.SECRET_KEY,(err, decoded)=>{
+        const tokenValidado = jwt.verify(token,process.env.SECRET_KEY,function(err, decoded){
             if (err) {
                 return res.status(401).json({
                     msg:'token modificado'

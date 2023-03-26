@@ -241,7 +241,7 @@ const restauranteGet = async(req=request,res=response)=>{
     try {
 
         const errors = validationResult(req);
-        
+        console.log(errors);
         if(!errors.isEmpty()){
             return res.status(400).json({
                 errores: errors.array()

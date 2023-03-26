@@ -20,6 +20,14 @@ const usuariosPost = async(req = request, res = response)=>{
                     errores: errors.array()
                 })
             }
+
+            const emailValido = Usuario.find({correo})
+
+            if(emailValido){
+                return res.status(400).json({
+                    msg:'Ya este email se encuentra registrado'
+                })
+            }
             
             const data ={
                 nombre1,
