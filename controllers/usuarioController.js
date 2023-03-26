@@ -50,6 +50,14 @@ const usuariosPost = async(req = request, res = response)=>{
         
         const {_id} = req.params;
 
+        const errors = validationResult(req);
+        
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                errores: errors.array()
+            })
+        }
+
         if(!isValidObjectId(_id)){
             return res.status(400).json({
                 msg:`este id: ${_id} no es de mongo`
@@ -97,6 +105,14 @@ const usuariosPost = async(req = request, res = response)=>{
 try {
     
     const {_id}= req.params;
+
+    const errors = validationResult(req);
+        
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                errores: errors.array()
+            })
+        }
     
     if(!isValidObjectId(_id)){
         return res.status(400).json({

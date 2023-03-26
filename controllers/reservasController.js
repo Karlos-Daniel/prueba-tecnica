@@ -27,15 +27,7 @@ const reservasPost = async (req = request, res = response) => {
             return res.status(400).json({
                 errores: errors.array()
             })
-        }
-
-
-        if (!nombreReserva || !mesa || !fecha) {
-            return res.status(400).json({
-                msg: 'ingrese todos los campos necesarios (nombreReserva,mesa,fecha'
-            })
-        }
-        
+        }      
         
         const validarFecha = new Date(fecha);
         if(validarFecha=='Invalid Date'){
@@ -212,7 +204,13 @@ const reservaDelete = async (req = request, res = response) => {
     try {
         const { _id } = req.params;
 
- 
+        const errors = validationResult(req);
+        
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                errores: errors.array()
+            })
+        }
 
         if(!validarReserva(_id)){
             return res.status(400).json({
@@ -274,6 +272,14 @@ const reservaById = async (req = request, res = response) => {
 const reservaGet = async (req = request, res = response) => {
 
     try {
+
+        const errors = validationResult(req);
+        
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                errores: errors.array()
+            })
+        }
 
         const reservas = await Reserva.find({}).populate('restaurante','nombreRestaurante');
 
