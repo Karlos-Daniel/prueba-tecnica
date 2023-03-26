@@ -257,7 +257,7 @@ const reservaById = async (req = request, res = response) => {
             })
         } 
 
-        const reserva = await Reserva.findById(_id)
+        const reserva = await Reserva.findById(_id).populate('restaurante','nombreRestaurante')
 
         return res.status(200).json(reserva);
 
@@ -275,7 +275,7 @@ const reservaGet = async (req = request, res = response) => {
 
     try {
 
-        const reservas = await Reserva.find({});
+        const reservas = await Reserva.find({}).populate('restaurante','nombreRestaurante');
 
         return res.json(reservas)
 
