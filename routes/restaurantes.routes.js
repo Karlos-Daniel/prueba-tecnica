@@ -1,6 +1,6 @@
 const{ Router }= require('express');
 const {validarJWT} = require('../middlewares/validar-jwt')
-const {body,check} = require('express-validator');
+const {body} = require('express-validator');
 const {restaurantePost,
     restaurantePut,
     restauranteDelete,
@@ -26,12 +26,12 @@ const validarTipos =  [
 
 const errores = camposVacios.concat(validarTipos)
 
+router.post('/restaurante',errores,restaurantePost)
 
 router.get('/restaurantes',[validarJWT],restauranteGet)
 
 router.get('/restaurante/:_id',[validarJWT],restauranteById)
 
-router.post('/restaurante',errores,restaurantePost)
 
 router.put('/restaurante/:_id',errores,restaurantePut)
 

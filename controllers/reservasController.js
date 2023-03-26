@@ -1,16 +1,11 @@
 const { response, request } = require("express");
-const { Restaurante, Reserva } = require('../models');
+const { Reserva } = require('../models');
 const {validationResult} = require('express-validator');
 const moment = require('moment')
 
-const { validarDireccionRestaurante, validarRestaurante, validarImagRestaurante } = require('../helpers/validarRestaurante');
+const {validarRestaurante} = require('../helpers/validarRestaurante');
 
 const {validarReserva} = require('../helpers/validarReservas')
-
-const { findByIdAndUpdate } = require("../models/restauranteModel");
-const { isValidObjectId } = require('mongoose')
-const cloudinary = require('cloudinary').v2
-cloudinary.config(process.env.CLOUDINARY_URL)
 
 const reservasPost = async (req = request, res = response) => {
     try {

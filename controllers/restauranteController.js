@@ -2,8 +2,6 @@ const { response, request } = require("express");
 const {Restaurante,Reserva} = require('../models');
 const {validationResult} = require('express-validator');
 const {validarDireccionRestaurante,validarRestaurante,validarImagRestaurante} = require('../helpers/validarRestaurante');
-const { findByIdAndUpdate } = require("../models/restauranteModel");
-const {isValidObjectId}=require('mongoose')
 const cloudinary = require('cloudinary').v2
 cloudinary.config(process.env.CLOUDINARY_URL)
 
@@ -241,7 +239,7 @@ const restauranteGet = async(req=request,res=response)=>{
     try {
 
         const errors = validationResult(req);
-        console.log(errors);
+        
         if(!errors.isEmpty()){
             return res.status(400).json({
                 errores: errors.array()
@@ -250,16 +248,8 @@ const restauranteGet = async(req=request,res=response)=>{
 
         const restaurantes = await Restaurante.find({});
         
-        data = restaurantes.sort((a,b)=>{
-            if (a.nombreRestaurante
-                > b.nombreRestaurante) {
-                return 1;
-              }
-              if (a.nombreRestaurante < b.nombreRestaurante) {
-                return -1;
-              }   
-              return 0;
-        })
+       data = restaurantes.sort((a, b) => (a.nombreRestaurante > b.nombreRestaurante) ? 1 : (a.nombreRestaurante < b.nombreRestaurante) ? -1 : 0);
+
 
         return res.json({data})
         

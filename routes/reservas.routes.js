@@ -1,6 +1,6 @@
 const{ Router }= require('express');
 
-const {body,check, header} = require('express-validator');
+const {body} = require('express-validator');
 
 
 
@@ -31,12 +31,12 @@ const validarTipos =  [
 
 const errores = camposVacios.concat(validarTipos)
 
+router.post('/reservas', errores ,reservasPost)
 
 router.get('/reservas',[validarJWT],reservaGet)
 
 router.get('/reserva/:_id',[validarJWT],reservaById)
 
-router.post('/reservas', errores ,reservasPost)
 
 router.put('/reservas/:_id',errores,reservaPut)
 
