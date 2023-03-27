@@ -27,22 +27,24 @@ const reservasPost = async (req = request, res = response) => {
         const validarFecha = new Date(fecha);
         if(validarFecha=='Invalid Date'){
             return res.status(400).json({
-                msg: 'no es una fecha valida'
+                errores:[{msg: 'no es una fecha valida'}]
             })
         }
         
         
         if (!validarRestaurante(restaurante)) {
-            return res.status(400).json({
+            return res.status(400).json({errores:
+
+               [{
                 msg: `no es valido ese id: ${restaurante}`
-            })
+            }]})
         }
     
         
         const mesasValidas = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
         if(!mesasValidas.includes(mesa)){
-            return res.status(400).json({
-                msg:'no es una mesa valida'
+            return res.status(400).json({errores:
+                [{msg:'no es una mesa valida'}]
             })
         }
 
@@ -52,23 +54,23 @@ const reservasPost = async (req = request, res = response) => {
         const reservasRestaurante = await Reserva.find({ restaurante,fecha:fechaMoment})
        
         if(reservasRestaurante.length>=15){
-            return res.status(400).json({
-                msg:'Ya hay 15 mesas para ese restaurante'
+            return res.status(400).json({erores:
+                [{msg:'Ya hay 15 mesas para ese restaurante'}]
             })
         }
 
         const mesasRestaurantesFecha = await Reserva.find({ restaurante,fecha:fechaMoment,mesa})
 
         if(mesasRestaurantesFecha.length>0){
-            return res.status(400).json({
-                msg:'ya existe una reserva en esa mesa para esa fecha'
+            return res.status(400).json({errores:
+                [{msg:'ya existe una reserva en esa mesa para esa fecha'}]
             })
         }
 
         const reservasFechas = await Reserva.find({fecha:fechaMoment})
         if(reservasFechas.length>=20){
-            return res.status(400).json({
-                msg:'ya hay 20 mesas reservadas entre todos los restaurantes para esa fecha'
+            return res.status(400).json({errores:
+                [{msg:'ya hay 20 mesas reservadas entre todos los restaurantes para esa fecha'}]
             })
         }
        
@@ -109,9 +111,9 @@ const reservaPut = async (req = request, res = response) => {
         }
 
         if(!validarReserva(_id)){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg:`no es valido ese id: ${_id}`
-            })
+            }]})
         }  
 
         const {

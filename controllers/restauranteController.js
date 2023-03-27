@@ -23,22 +23,22 @@ const restaurantePost = async(req=request,res=response)=>{
         }
 
         if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
-            return res.status(400).json({ msg: 'No hay archivos en la peticion.' });          
+            return res.status(400).json({errores:[{ msg: 'No hay archivos en la peticion.' }]});          
         }
 
         const file = req.files.archivo;
 
         if(await validarDireccionRestaurante(ciudad,direccion)){
-            return res.status(401).json({
+            return res.status(401).json({errores:[{
                 msg:`El restaurante con direccion: ${direccion} y en la ciudad: ${ciudad} ya existe`
-            });
+            }]});
         }
         const extension = await validarImagRestaurante(file);
         
         if(extension){
-            return res.status(401).json({
+            return res.status(401).json({errores:[{
                 msg:`la extension '${extension}' no es valida como imagen`
-            });
+            }]});
         }
         
         const data ={

@@ -14,7 +14,8 @@ const camposVacios = [
     body('nombreRestaurante','Este campo esta vacio').not().isEmpty(),
     body('descripcion','Este campo esta vacio').not().isEmpty(),
     body('direccion','Este campo esta vacio').not().isEmpty(),
-    body('ciudad','Este campo esta vacio').not().isEmpty()
+    body('ciudad','Este campo esta vacio').not().isEmpty(),
+    
 ]
 
 const validarTipos =  [
