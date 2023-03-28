@@ -1,5 +1,7 @@
 const {Restaurante} = require('../models');
 const {isValidObjectId}=require('mongoose')
+const cloudinary = require('cloudinary').v2
+cloudinary.config(process.env.CLOUDINARY_URL)
 const validarDireccionRestaurante = async(ciudad,direccion)=>{
 
     const existe = await Restaurante.findOne({ciudad,direccion});
@@ -18,6 +20,17 @@ const validarImagRestaurante = async(file,extensiones = ['jpg', 'png', 'jpeg', '
         return false
 }
 
+const splitAndUpdateImg = async(restaurante,file)=>{
+    const nombreArr = restaurante.imgRestaurante.split('/');
+    const nombre = nombreArr[nombreArr.length - 1];
+    const [publicId]=nombre.split('.');
+    await cloudinary.uploader.destroy(publicId);
+
+    const { tempFilePath } = file
+    const { secure_url } = await cloudinary.uploader.upload(tempFilePath)
+    return secure_url
+}
+
 const validarRestaurante = async(id)=>{
 
     if(!isValidObjectId(id)){
@@ -33,8 +46,11 @@ const validarRestaurante = async(id)=>{
     return true
 }
 
+
+
 module.exports = {
     validarDireccionRestaurante,
     validarRestaurante,
+    splitAndUpdateImg,
     validarImagRestaurante
 }

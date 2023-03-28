@@ -1,7 +1,7 @@
 const { response, request } = require("express");
 const {Restaurante,Reserva} = require('../models');
 const {validationResult} = require('express-validator');
-const {validarDireccionRestaurante,validarRestaurante,validarImagRestaurante} = require('../helpers/validarRestaurante');
+const {validarDireccionRestaurante,validarRestaurante,validarImagRestaurante,splitAndUpdateImg} = require('../helpers/validarRestaurante');
 const cloudinary = require('cloudinary').v2
 cloudinary.config(process.env.CLOUDINARY_URL)
 
@@ -27,7 +27,7 @@ const restaurantePost = async(req=request,res=response)=>{
         }
 
         const file = req.files.archivo;
-
+        console.log(file);
         if(await validarDireccionRestaurante(ciudad,direccion)){
             return res.status(401).json({errores:[{
                 msg:`El restaurante con direccion: ${direccion} y en la ciudad: ${ciudad} ya existe`
@@ -81,65 +81,74 @@ const restaurantePut = async(req=request,res=response)=>{
             })
         }
         
-        if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
-            return res.status(400).json({ msg: 'No hay archivos en la peticion.' });          
-        }
-        
         if(!validarRestaurante(_id)){
             return res.status(400).json({
                 msg:`no es valido ese id: ${_id}`
             })
         }      
-
+        
         const {
             nombreRestaurante,
             descripcion,
             direccion,
             ciudad,
         } = req.body
-
-        const file = req.files.archivo;
-
+        
+        
+        
+       
         if(await validarDireccionRestaurante(ciudad,direccion)){
             return res.status(401).json({
                 msg:`El restaurante con direccion: ${direccion} y en la ciudad: ${ciudad} ya existe`
             });
         }
 
-        const extension = await validarImagRestaurante(file);
+        if(req.files){
+            const file = req.files.archivo;
+            const extension = await validarImagRestaurante(file);
        
         if(extension){
             return res.status(401).json({
                 msg:`la extension '${extension}' no es valida como imagen`
             });
+        }   
+            if ( Object.keys(req.files).length > 0 && req.files.archivo) {
+                const restaurante = await Restaurante.findById(_id)
+                const imgRestaurante = await splitAndUpdateImg(restaurante,file);
+
+                const data ={
+                    nombreRestaurante,
+                    descripcion,
+                    direccion,
+                    ciudad,
+                    imgRestaurante
+                } 
+                await Restaurante.findByIdAndUpdate(_id,data);
+
+                return res.status(201).json({
+                    msg:'Restaurante actualizado con exito'
+                })
+                
+            }else{
+                return res.status(400).json({ msg: 'No hay archivos en la peticion.' });          
+
+            }
+            
+        }else{
+            const data ={
+                nombreRestaurante,
+                descripcion,
+                direccion,
+                ciudad,
+            } 
+            await Restaurante.findByIdAndUpdate(_id,data);
+
+            return res.status(201).json({
+                msg:'Restaurante actualizado con exito'
+            })
         }
 
-        const restaurante = await Restaurante.findById(_id)
-        console.log(restaurante);
-        const nombreArr = restaurante.imgRestaurante.split('/');
-        const nombre = nombreArr[nombreArr.length - 1];
-        const [publicId]=nombre.split('.');
-        await cloudinary.uploader.destroy(publicId);
-
-        const { tempFilePath } = file
-        const { secure_url } = await cloudinary.uploader.upload(tempFilePath)
-        const imgRestaurante = secure_url;
-
-        const data ={
-            nombreRestaurante,
-            descripcion,
-            direccion,
-            ciudad,
-            imgRestaurante
-        } 
-
-        console.log(imgRestaurante);
-
-        await Restaurante.findByIdAndUpdate(_id,data);
         
-        return res.status(201).json({
-            msg:'Restaurante actualizado con exito'
-        })
 
     } catch (error) {
         console.log(error);
