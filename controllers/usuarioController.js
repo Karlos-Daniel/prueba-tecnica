@@ -24,9 +24,9 @@ const usuariosPost = async(req = request, res = response)=>{
             const emailValido = Usuario.find({correo})
 
             if(emailValido){
-                return res.status(400).json({
+                return res.status(400).json({errores:[{
                     msg:'Ya este email se encuentra registrado'
-                })
+                }]})
             }
             
             const data ={
@@ -67,16 +67,16 @@ const usuariosPost = async(req = request, res = response)=>{
         }
 
         if(!isValidObjectId(_id)){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg:`este id: ${_id} no es de mongo`
-            })
+            }]})
         }
         const existe = await Usuario.findById(_id)
         
         if(!existe){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg:`Ese id no pertence a ningun usuario`
-            })
+            }]})
         } 
         
         const {
@@ -98,7 +98,7 @@ const usuariosPost = async(req = request, res = response)=>{
              data.password = brcryptjs.hashSync(password,salt);
              await Usuario.findByIdAndUpdate(id, data);
             
-        res.json({
+        return res.json({
             msg: 'Ha sido cambiado con exito',
             data
         })
@@ -123,16 +123,16 @@ try {
         }
     
     if(!isValidObjectId(_id)){
-        return res.status(400).json({
+        return res.status(400).json({errores:[{
             msg:`este id: ${_id} no es de mongo`
-        })
+        }]})
     }
     const existe = await Usuario.findById(_id)
     
     if(!existe){
-        return res.status(400).json({
+        return res.status(400).json({errores:[{
             msg:`Ese id no pertence a ningun usuario`
-        })
+        }]})
     } 
     //Convertimos el estado del usuario en false
     const usuario = await Usuario.findByIdAndDelete(id);

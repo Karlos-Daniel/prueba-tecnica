@@ -129,24 +129,24 @@ const reservaPut = async (req = request, res = response) => {
        
         const validarFecha = new Date(fecha);
         if(validarFecha=='Invalid Date'){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg: 'no es una fecha valida'
-            })
+            }]})
         }
         
        
         if (!await validarRestaurante(restaurante)) {
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg: `no es valido ese id: ${restaurante}`
-            })
+            }]})
         }
         
         //Posible Middleware
         const mesasValidas = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
         if(!mesasValidas.includes(mesa)){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg:'no es una mesa valida'
-            })
+            }]})
         }
 
         const dateMoment = new Date(fecha)
@@ -155,24 +155,24 @@ const reservaPut = async (req = request, res = response) => {
         const reservasRestaurante = await Reserva.find({ restaurante,fecha:fechaMoment})
        
         if(reservasRestaurante.length>=15){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg:'Ya hay 15 mesas para ese restaurante'
-            })
+            }]})
         }
 
         const mesasRestaurantesFecha = await Reserva.find({ restaurante,fecha:fechaMoment,mesa})
 
         if(mesasRestaurantesFecha.length>0){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg:'ya existe una reserva en esa mesa para esa fecha'
-            })
+            }]})
         }
 
         const reservasFechas = await Reserva.find({fecha:fechaMoment})
         if(reservasFechas.length>=20){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg:'ya hay 20 mesas reservadas entre todos los restaurantes para esa fecha'
-            })
+            }]})
         }
        
         const data = {
@@ -210,9 +210,9 @@ const reservaDelete = async (req = request, res = response) => {
         }
 
         if(!validarReserva(_id)){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg:`no es valido ese id: ${_id}`
-            })
+            }]})
         } 
 
         await Reserva.findByIdAndDelete(_id);
@@ -247,9 +247,9 @@ const reservaById = async (req = request, res = response) => {
         }
 
         if(!await validarReserva(_id)){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg:`no es valido ese id: ${_id}`
-            })
+            }]})
         } 
 
         const reserva = await Reserva.findById(_id).populate('restaurante','nombreRestaurante')

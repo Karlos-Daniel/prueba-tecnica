@@ -96,21 +96,26 @@ const restaurantePut = async(req=request,res=response)=>{
         
         
         
+      
+       const direccionRes = await Restaurante.find({ciudad,direccion})
        
-        if(await validarDireccionRestaurante(ciudad,direccion)){
-            return res.status(401).json({
-                msg:`El restaurante con direccion: ${direccion} y en la ciudad: ${ciudad} ya existe`
-            });
-        }
+       if(direccionRes.length>0){
+
+           if(await validarDireccionRestaurante(ciudad,direccion)){
+               return res.status(401).json({errores:[{
+                   msg:`El restaurante con direccion: ${direccion} y en la ciudad: ${ciudad} ya existe`
+               }]});
+           }
+       }
 
         if(req.files){
             const file = req.files.archivo;
             const extension = await validarImagRestaurante(file);
        
         if(extension){
-            return res.status(401).json({
+            return res.status(401).json({errores:[{
                 msg:`la extension '${extension}' no es valida como imagen`
-            });
+            }]});
         }   
             if ( Object.keys(req.files).length > 0 && req.files.archivo) {
                 const restaurante = await Restaurante.findById(_id)
@@ -125,12 +130,12 @@ const restaurantePut = async(req=request,res=response)=>{
                 } 
                 await Restaurante.findByIdAndUpdate(_id,data);
 
-                return res.status(201).json({
+                return res.status(201).json({errores:[{
                     msg:'Restaurante actualizado con exito'
-                })
+                }]})
                 
             }else{
-                return res.status(400).json({ msg: 'No hay archivos en la peticion.' });          
+                return res.status(400).json({errores:[{ msg: 'No hay archivos en la peticion.' }]});          
 
             }
             
@@ -172,17 +177,17 @@ const restauranteDelete = async(req=request,res=response)=>{
         }
         
         if(!validarRestaurante(_id)){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg:`no es valido ese id: ${_id}`
-            })
+            }]})
         }
         
         const reservas = await Reserva.find({restaurante:_id})
         
         if(reservas.length>0){
-             return res.status(400).json({
+             return res.status(400).json({errores:[{
                 msg:'Este restaurante tiene reservas, porfavor elimine las reservas para eliminar el restaurante'
-             })
+             }]})
         }
 
         const restaurante = await Restaurante.findById(_id)
@@ -225,9 +230,9 @@ try {
         }
      
     if(!await validarRestaurante(_id)){
-        return res.status(401).json({
+        return res.status(401).json({errores:[{
             msg:`El restaurante con id: ${_id} no existe en la DB`
-        })
+        }]})
     }
     
     const restaurante = await Restaurante.findById(_id)

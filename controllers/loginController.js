@@ -23,17 +23,17 @@ const login = async(req= request, res= response)=>{
         const usuario = await Usuario.findOne({correo})
             
         if(!usuario){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg: 'Correo no se encuentra registrado'
-            })
+            }]})
         }
         
         //Verificar la contraseña
         const validPassword = bcryptjs.compareSync(password, usuario.password);
         if(!validPassword){
-            return res.status(400).json({
+            return res.status(400).json({errores:[{
                 msg: 'Contraseña incorrecta'
-            })
+            }]})
         }
         console.log(usuario._id);
         const token = await generarJWT(usuario._id);
